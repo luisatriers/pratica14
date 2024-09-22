@@ -1,31 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="pratica14.js"></script>
     <title>Atividade Prática 14</title>
 </head>
-<body>
-    <form>
-        <fieldset>
-            <label>Nome:</label>
-            <input type="text" id="campoNome"><br>
-            <label>Idade:</label>
-            <input type="text" id="campoIdade"><br>
-            <label>Cargo:</label>
-            <input type="radio" name="cargo" value="gerente" id="gerente"><label>Gerente</label>
-            <input type="radio" name="cargo" value="desenvolvedor" id="desenvolvedor"><label>Desenvolvedor</label>
-        </fieldset>
-        <fieldset>
-            <br><label>Departamento</label>
-            <input type="text" id="campoDepartamento">
 
-            <br><label>Linguagem</label>
-        <input type="text" id="campoLinguagem">
-        </fieldset>
-     
-        <input type="submit" value="Cadastrar" >
+<body>
+    <h1>Gerenciamento de Funcionários</h1>
+    <form id="formularioDeCadastro">
+        <label>Nome:</label>
+        <input type="text" id="campoNome" required><br><br>
+        <label>Idade:</label>
+        <input type="number" id="campoIdade" required><br><br>
+        <label>Cargo:</label>
+        <select id="cargo" name="cargo" required>
+            <option value="">Selecione um cargo</option>
+            <option value="gerente">Gerente</option>
+            <option value="desenvolvedor">Desenvolvedor</option>
+        </select>
+        <br>
+        <div id="campoExtra">
+            
+        </div>
+        <br>
+        <input type="submit" value="Cadastrar">
     </form>
+    <div id="campoMensagem"></div>
 </body>
+<script>
+       class Funcionario {
+        constructor(nome, idade, cargo) {
+            this.nome = nome;
+            this.idade = idade;
+            this.cargo = cargo;
+        }
+
+        seApresentar() {
+            console.log(`Olá, me chamo ${this.nome}, tenho ${this.idade} anos e sou ${this.cargo}.`)
+            return `Olá, me chamo ${this.nome}, tenho ${this.idade} anos e sou ${this.cargo}.`
+        }
+        trabalhar() {
+            console.log(`${this.nome} está trabalhando.`)
+            return `${this.nome} está trabalhando.`
+        }
+    }
+
+    class Gerente extends Funcionario {
+        constructor(nome, idade, cargo, departamento) {
+            super(nome, idade, cargo);
+            this.departamento = departamento;
+        }
+        gerenciar() {
+            console.log(`${this.nome} gerencia o departamento de ${this.departamento}.`)
+            return `${this.nome} gerencia o departamento de ${this.departamento}.`
+        }
+    }
+
+    class Desenvolvedor extends Funcionario {
+        constructor(nome, idade, cargo, linguagem) {
+            super(nome, idade, cargo)
+            this.linguagem = linguagem;
+        }
+        programar() {
+            console.log(`${this.nome} programa na linguagem ${this.linguagem}.`)
+            return `${this.nome} programa na linguagem ${this.linguagem}.`
+        }
+    }
+
+const cargoSelect = document.getElementById('cargo');
+const campoExtra = document.getElementById('campoExtra');
+const campoMensagem = document.getElementById('campoMensagem');
+
+function exibirErro(mensagem) {
+    campoMensagem.innerHTML = `<p>Ocorreu um erro:<br> ${mensagem}</p>`
+}
+
+cargoSelect.addEventListener('change', () => {
+    var cargoSelecionado = cargoSelect.value;
+    console.log(`O cargo selecionado é: ${cargoSelecionado}`);
+    if (cargoSelecionado == '') {
+        campoExtra.innerHTML = '<br>';
+    } else if (cargoSelecionado == 'gerente') {
+        campoExtra.innerHTML = '<label>Departamento: </label>' + '<input type="text" id="departamento">'
+    } else {
+        campoExtra.innerHTML = '<label>Linguagem: </label>' + '<input type="text" id="linguagem">'
+    }
+})
+
+const formularioDeCadastro = document.getElementById('formularioDeCadastro');
+
+formularioDeCadastro.addEventListener('submit', evento => {
+    evento.preventDefault();
+
+    try {
+        var nome = document.getElementById('campoNome').value;
+        var idade = document.getElementById('campoIdade').value;
+        var cargo = document.getElementById('cargo').value;
+
+        let funcionario = '';
+        if (cargo === 'gerente'){
+            var departamento = document.getElementById('departamento').value;
+            console.log(departamento)
+            if (!departamento){
+                throw new Error('É necessário preencher um departamento.')
+            }
+            funcionario = new Gerente(nome,idade,cargo,departamento)
+            
+            campoMensagem.innerHTML = `
+            <h3>Funcionário cadastrado!</h3>
+            <p>${funcionario.seApresentar()}</p>
+            <p>${funcionario.gerenciar()}</p>
+            <p>${funcionario.trabalhar()}</p>
+            `
+
+        } else if (cargo === 'desenvolvedor') {
+            var linguagem = document.getElementById('linguagem').value;
+            if (!linguagem){
+                throw new Error('É necessário informar uma linguagem de programação.')
+            }
+            funcionario = new Desenvolvedor(nome,idade,cargo,linguagem);
+
+            campoMensagem.innerHTML = `
+            <h3>Funcionário cadastrado!</h3>
+            <p>${funcionario.seApresentar()}</p>
+            <p>${funcionario.programar()}</p>
+            <p>${funcionario.trabalhar()}</p>
+            `
+            }
+        }
+    catch (error) {
+        exibirErro(error.message);
+    }
+});
+</script>
 </html>
